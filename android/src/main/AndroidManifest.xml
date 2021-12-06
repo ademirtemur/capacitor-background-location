@@ -1,3 +1,26 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="com.capacitor.plugins.backgroundlocation">
+
+    <meta-data
+        android:name="com.google.firebase.messaging.default_notification_color"
+        android:resource="@color/colorAccent" />
+
+    <application>
+        <receiver
+            android:name="com.capacitor.plugins.backgroundlocation.BackgroundLocationReceiver"
+            android:enabled="true"
+            android:exported="false"
+            tools:ignore="WrongManifestParent" />
+
+        <service
+            android:name="com.capacitor.plugins.backgroundlocation.BackgroundLocationService"
+            android:enabled="true"
+            android:exported="true"
+            tools:ignore="Instantiatable,WrongManifestParent" />
+    </application>
+
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
 </manifest>
