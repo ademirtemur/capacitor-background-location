@@ -26,6 +26,9 @@ android {
         versionName "1.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
+    configurations.all {
+        resolutionStrategy { force 'androidx.work:work-runtime:2.6.0' }
+    }
     buildTypes {
         release {
             minifyEnabled false
