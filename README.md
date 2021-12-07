@@ -180,22 +180,37 @@ removeAllListeners() => Promise<void>
 ###
 ANDROID
 ###
+
 ```bash
      <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
      <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
      <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
 ```
+
 And add `xmlns:tools="http://schemas.android.com/tools"` to AndroidManifest.xml
 
+And add to android/app/build.gradle
+```bash
+     android {
+          configurations.all {
+               resolutionStrategy { force 'androidx.work:work-runtime:2.6.0' }
+          }
+     }
+```
+
+<hr/>
 ###
 IOS
 ###
+
 ```bash
+
      <key>NSLocationAlwaysUsageDescription</key>
      <string>Description</string>
      <key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
      <string>Description</string>
      <key>NSLocationWhenInUseUsageDescription</key>
      <string>Description</string>
+
 ```
 And enable to `Location update` from `Signing & Capabilities` in xcode
