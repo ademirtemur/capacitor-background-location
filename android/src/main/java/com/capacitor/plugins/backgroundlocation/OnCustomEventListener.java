@@ -1,4 +1,4 @@
-package com.capacitor.plugins.backgroundgeolocation;
+package com.capacitor.plugins.backgroundlocation;
 
 import com.getcapacitor.JSObject;
 
