@@ -32,6 +32,10 @@ public class CapacitorBackgroundLocationPlugin extends Plugin {
             this.notifyListeners("ERROR", payload);
         });
 
+        BackgroundLocationService.confCustomChangeEventListener((locationEventPayload) -> {
+            notifyListeners("CHANGE", locationEventPayload, false);
+        });
+
         locationPermissionRequest =
                 getBridge().registerForActivityResult(
                         new ActivityResultContracts.RequestMultiplePermissions(),
@@ -109,10 +113,7 @@ public class CapacitorBackgroundLocationPlugin extends Plugin {
             BackgroundLocationService.startProcess(
                     context,
                     interval,
-                    locationPriority,
-                    (locationEventPayload) -> {
-                        notifyListeners("CHANGE", locationEventPayload, false);
-                    }
+                    locationPriority
             );
 
             call.resolve();

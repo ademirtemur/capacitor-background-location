@@ -58,6 +58,10 @@ public class CapacitorBackgroundLocationPlugin: CAPPlugin, CLLocationManagerDele
         print("locationManagerDidChangeAuthorization----->")
     }
     
+    public func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
+        self.notifyListeners(self.ERROR_EVENT_NAME, data: ["error" : "LOCATION_RECEIVE_ERROR"]);
+    }
+    
     public func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         let _latitude = self.locationManager?.location?.coordinate.latitude;
         let _longitude = self.locationManager?.location?.coordinate.longitude;
@@ -160,16 +164,26 @@ public class CapacitorBackgroundLocationPlugin: CAPPlugin, CLLocationManagerDele
     }
     
     @objc func start(_ call: CAPPluginCall) {
-        self.locationManager?.startUpdatingLocation();
-        
-        self.showNotification(title: self.title, description: self.desc);
-        
-        call.resolve([:]);
+        do{
+            self.locationManager?.requestLocation();
+            
+            self.locationManager?.startUpdatingLocation();
+            
+            self.showNotification(title: self.title, description: self.desc);
+            
+            call.resolve([:]);
+        }catch{
+            call.reject("START_ERROR");
+        }
     }
     
     @objc func stop(_ call: CAPPluginCall) {
-        self.locationManager?.stopUpdatingLocation();
-        
-        call.resolve([:]);
+        do{
+            self.locationManager?.stopUpdatingLocation();
+            
+            call.resolve([:]);
+        }catch{
+            call.reject("STOP_ERROR");
+        }
     }
 }
