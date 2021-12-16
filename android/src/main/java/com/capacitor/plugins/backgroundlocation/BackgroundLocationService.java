@@ -71,7 +71,7 @@ public class BackgroundLocationService extends Service {
         BackgroundLocationService.onCustomErrorListener = onCustomErrorListener;
     }
 
-    public static  void confCustomChangeEventListener(OnCustomEventListener onCustomChangeEventListener){
+    public static void confCustomChangeEventListener(OnCustomEventListener onCustomChangeEventListener) {
         BackgroundLocationService.onCustomChangeEventListener = onCustomChangeEventListener;
     }
 
@@ -115,7 +115,7 @@ public class BackgroundLocationService extends Service {
     }
 
 
-    private static void doLocationUpdateProccess(Context context,Location location){
+    private static void doLocationUpdateProccess(Context context, Location location) {
         double _lat = location.getLatitude();
         double _lng = location.getLongitude();
         float _accuracy = location.getAccuracy();
@@ -142,7 +142,7 @@ public class BackgroundLocationService extends Service {
 
         String url = BackgroundLocationService.URL;
 
-        if (url != null) {
+        if (url != null && url != "") {
             try {
                 StringRequest stringRequest = new StringRequest(
                         Request.Method.POST,
@@ -311,7 +311,7 @@ public class BackgroundLocationService extends Service {
 
         if (isGrantedAFL && isGrantedACL) {
             Thread.sleep(5000);
-            
+
             Task<Location> task = BackgroundLocationService.fusedLocationClient.getLastLocation();
 
             task.addOnSuccessListener(new OnSuccessListener<Location>() {
@@ -342,8 +342,10 @@ public class BackgroundLocationService extends Service {
     }
 
     public static void terminateProcess() {
-        BackgroundLocationService.fusedLocationClient.removeLocationUpdates(
-                BackgroundLocationService.locationCallback
-        );
+        if(BackgroundLocationService.locationCallback != null){
+            BackgroundLocationService.fusedLocationClient.removeLocationUpdates(
+                    BackgroundLocationService.locationCallback
+            );
+        }
     }
 }

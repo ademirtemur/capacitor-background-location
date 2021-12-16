@@ -28,7 +28,7 @@ public class CapacitorBackgroundLocationPlugin extends Plugin {
 
         context = getContext().getApplicationContext();
 
-        BackgroundLocationService.confCustomErrorListener((JSObject payload)->{
+        BackgroundLocationService.confCustomErrorListener((JSObject payload) -> {
             this.notifyListeners("ERROR", payload);
         });
 
@@ -70,11 +70,14 @@ public class CapacitorBackgroundLocationPlugin extends Plugin {
 
     private void stopService() {
         try {
+            BackgroundLocationService.terminateProcess();
+
             Thread.sleep(3000);
+
             Intent serviceIntent = new Intent(context, BackgroundLocationService.class);
             context.stopService(serviceIntent);
         } catch (Exception ex) {
-
+            System.out.println("");
         }
     }
 
@@ -107,6 +110,8 @@ public class CapacitorBackgroundLocationPlugin extends Plugin {
                 return;
             }
 
+            stopService();
+
             Intent serviceIntent = new Intent(context, BackgroundLocationService.class);
             ContextCompat.startForegroundService(context, serviceIntent);
 
@@ -126,8 +131,6 @@ public class CapacitorBackgroundLocationPlugin extends Plugin {
     @PluginMethod
     public void stop(PluginCall call) {
         try {
-            BackgroundLocationService.terminateProcess();
-
             stopService();
 
             call.resolve();
