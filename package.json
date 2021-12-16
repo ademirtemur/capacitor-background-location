@@ -1,6 +1,6 @@
 {
   "name": "capacitor-background-location",
-  "version": "0.0.69",
+  "version": "0.0.71",
   "description": "this plugins ensures to get the location in background when app is suspended",
   "main": "dist/plugin.cjs.js",
   "module": "dist/esm/index.js",

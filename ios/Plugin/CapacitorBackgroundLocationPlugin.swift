@@ -116,18 +116,19 @@ public class CapacitorBackgroundLocationPlugin: CAPPlugin, CLLocationManagerDele
                 request.setValue(_val as? String, forHTTPHeaderField: hk);
             }
             
-            var body:JSObject = [:];
+            var _body: [String : Any] = [:];
             
             for key in self.body.keys {
-                body[key] = self.body[key]
+                _body[key] = self.body[key]
             }
             
+            
             for (k, v) in _data {
-                body[k] = v as? JSValue;
+                _body[k] = v;
             }
             
             do {
-                request.httpBody = try JSONSerialization.data(withJSONObject: body);
+                request.httpBody = try JSONSerialization.data(withJSONObject: _body);
             } catch {
                 self.notifyListeners(self.ERROR_EVENT_NAME, data: ["error" : "SERILIZATION_PROBLEM"]);
                 return;
