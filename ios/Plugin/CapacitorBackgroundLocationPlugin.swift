@@ -123,7 +123,7 @@ public class CapacitorBackgroundLocationPlugin: CAPPlugin, CLLocationManagerDele
             }
             
             for (k, v) in _data {
-                body[k] = v as! JSValue;
+                body[k] = v as? JSValue;
             }
             
             do {
