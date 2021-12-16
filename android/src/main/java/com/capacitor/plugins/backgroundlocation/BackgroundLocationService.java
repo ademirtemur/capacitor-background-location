@@ -310,6 +310,8 @@ public class BackgroundLocationService extends Service {
         );
 
         if (isGrantedAFL && isGrantedACL) {
+            Thread.sleep(5000);
+            
             Task<Location> task = BackgroundLocationService.fusedLocationClient.getLastLocation();
 
             task.addOnSuccessListener(new OnSuccessListener<Location>() {
@@ -325,8 +327,6 @@ public class BackgroundLocationService extends Service {
                     System.out.println("");
                 }
             });
-
-            Thread.sleep(5000);
 
             BackgroundLocationService.fusedLocationClient.requestLocationUpdates(
                     locationRequest,
