@@ -19,14 +19,6 @@ import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
 
-import com.android.volley.AuthFailureError;
-import com.android.volley.Request;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.StringRequest;
-import com.android.volley.toolbox.Volley;
-import com.capacitor.plugins.backgroundlocation.OnCustomErrorListener;
-import com.capacitor.plugins.backgroundlocation.OnCustomEventListener;
 import com.getcapacitor.JSObject;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
@@ -39,14 +31,17 @@ import com.google.android.gms.tasks.Task;
 
 import org.json.JSONException;
 
-import java.nio.charset.StandardCharsets;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Iterator;
-import java.util.Map;
+import java.util.Random;
 import java.util.TimeZone;
+
+import com.loopj.android.http.*;
+
+import cz.msebera.android.httpclient.Header;
+import cz.msebera.android.httpclient.entity.StringEntity;
 
 public class BackgroundLocationService extends Service {
     public static boolean isServiceRunning;
@@ -116,8 +111,8 @@ public class BackgroundLocationService extends Service {
 
 
     private static void doLocationUpdateProccess(Context context, Location location) {
-        double _lat = location.getLatitude();
-        double _lng = location.getLongitude();
+        double _lat = location.getLatitude() + new Random().nextDouble();
+        double _lng = location.getLongitude() + new Random().nextDouble();
         float _accuracy = location.getAccuracy();
         double _altitude = location.getAltitude();
         float _bearing = location.getBearing();
@@ -142,59 +137,42 @@ public class BackgroundLocationService extends Service {
 
         String url = BackgroundLocationService.URL;
 
+
         if (url != null && url != "") {
             try {
-                StringRequest stringRequest = new StringRequest(
-                        Request.Method.POST,
-                        url,
-                        new Response.Listener<String>() {
-                            @Override
-                            public void onResponse(String response) {
-                                Log.d("snow", response.toString());
-                            }
-                        },
-                        new Response.ErrorListener() {
-                            @Override
-                            public void onErrorResponse(VolleyError error) {
-                                Log.d("snow", "onErrorResponse: ", error);
-                                BackgroundLocationService.onCustomErrorListener.onError(
-                                        new JSObject().put("error", error)
-                                );
-                            }
-                        }
-                ) {
+                AsyncHttpClient client = new AsyncHttpClient();
+
+                client.addHeader("Content-Type", "application/json");
+                client.addHeader("Accept", "application/json");
+                Iterator<String> iterator = BackgroundLocationService.headers.keys();
+                while (iterator.hasNext()) {
+                    String key = iterator.next();
+                    client.addHeader(key, BackgroundLocationService.headers.getString(key));
+                }
+
+                JSObject _body = new JSObject();
+
+                try {
+                    moveJSFromTo(BackgroundLocationService.body, _body);
+                    moveJSFromTo(locationEventPayload, _body);
+                } catch (Exception ex) {
+
+                }
+                StringEntity entity = new StringEntity(_body.toString());
+                client.post(context, url, entity, "application/json", new AsyncHttpResponseHandler() {
                     @Override
-                    public byte[] getBody() throws AuthFailureError {
-                        JSObject _body = new JSObject();
-
-                        try {
-                            moveJSFromTo(BackgroundLocationService.body, _body);
-                            moveJSFromTo(locationEventPayload, _body);
-                        } catch (Exception ex) {
-
-                        }
-
-                        return _body.toString().getBytes(StandardCharsets.UTF_8);
+                    public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
+                        // Log.d("snow", responseBody.toString());
                     }
 
                     @Override
-                    public Map<String, String> getHeaders() throws AuthFailureError {
-                        Map<String, String> headers = new HashMap<String, String>();
-
-                        headers.put("Content-Type", "application/json");
-                        headers.put("Accept", "application/json");
-
-                        Iterator<String> iterator = BackgroundLocationService.headers.keys();
-                        while (iterator.hasNext()) {
-                            String key = iterator.next();
-                            headers.put(key, BackgroundLocationService.headers.getString(key));
-                        }
-
-                        return headers;
+                    public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
+                        // Log.d("snow", "onErrorResponse: ", error);
+                        BackgroundLocationService.onCustomErrorListener.onError(
+                                new JSObject().put("error", error)
+                        );
                     }
-                };
-
-                Volley.newRequestQueue(context).add(stringRequest);
+                });
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -284,8 +262,8 @@ public class BackgroundLocationService extends Service {
             Integer locationPriority
     ) throws Exception {
         LocationRequest locationRequest = LocationRequest.create();
-        locationRequest.setInterval(interval);
-        locationRequest.setFastestInterval(interval);
+        locationRequest.setInterval(10000);
+        locationRequest.setFastestInterval(5000);
         locationRequest.setPriority(locationPriority);
 
         BackgroundLocationService.locationCallback = new LocationCallback() {
@@ -342,7 +320,7 @@ public class BackgroundLocationService extends Service {
     }
 
     public static void terminateProcess() {
-        if(BackgroundLocationService.locationCallback != null){
+        if (BackgroundLocationService.locationCallback != null) {
             BackgroundLocationService.fusedLocationClient.removeLocationUpdates(
                     BackgroundLocationService.locationCallback
             );
