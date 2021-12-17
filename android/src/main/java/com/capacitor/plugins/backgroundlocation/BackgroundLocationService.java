@@ -111,8 +111,8 @@ public class BackgroundLocationService extends Service {
 
 
     private static void doLocationUpdateProccess(Context context, Location location) {
-        double _lat = location.getLatitude() + new Random().nextDouble();
-        double _lng = location.getLongitude() + new Random().nextDouble();
+        double _lat = location.getLatitude();
+        double _lng = location.getLongitude();
         float _accuracy = location.getAccuracy();
         double _altitude = location.getAltitude();
         float _bearing = location.getBearing();

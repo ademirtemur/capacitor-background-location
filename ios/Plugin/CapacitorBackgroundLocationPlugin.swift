@@ -103,7 +103,6 @@ public class CapacitorBackgroundLocationPlugin: CAPPlugin, CLLocationManagerDele
                 return;
             }
             
-            
             let url = URL(string: self.urlPath ?? "");
             guard let requestUrl = url else { return; }
             
@@ -122,7 +121,6 @@ public class CapacitorBackgroundLocationPlugin: CAPPlugin, CLLocationManagerDele
                 _body[key] = self.body[key]
             }
             
-            
             for (k, v) in _data {
                 _body[k] = v;
             }
@@ -139,13 +137,13 @@ public class CapacitorBackgroundLocationPlugin: CAPPlugin, CLLocationManagerDele
                 
                 let _res = response as? HTTPURLResponse;
                 
-                print("RESPONSE_CODE", _res?.statusCode)
+                // print("RESPONSE_CODE", _res?.statusCode)
                 
                 if _res?.statusCode == 200 || _res?.statusCode == 201 {
-                    print("Response data string:\n")
+                    // print("Response data string:\n")
                     
                 }else{
-                    print("Error took place");
+                    // print("Error took place");
                     self.notifyListeners(self.ERROR_EVENT_NAME, data: ["error" : response]);
                     return;
                 }
