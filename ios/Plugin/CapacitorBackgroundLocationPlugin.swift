@@ -65,9 +65,11 @@ public class CapacitorBackgroundLocationPlugin: CAPPlugin, CLLocationManagerDele
         
         let formatter = DateComponentsFormatter()
         let diff = formatter.string(from: self.lastUpdateTime!, to: _time);
-        self.lastUpdateTime = Date();
-        
         let ch = Float(diff ?? "0")! > Float(self.interval);
+        
+        if Bool(ch){
+            self.lastUpdateTime = Date();
+        }
         return Bool(ch);
     }
     
