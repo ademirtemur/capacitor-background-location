@@ -9,6 +9,7 @@ public class CapacitorBackgroundLocationPlugin: CAPPlugin, CLLocationManagerDele
     private let ERROR_EVENT_NAME: String = "ERROR";
     private final let notificationCenter = UNUserNotificationCenter.current();
     
+    private var interval: Float = 10;
     private var title: String = "";
     private var desc: String = "";
     private var urlPath: String? = nil;
@@ -63,10 +64,11 @@ public class CapacitorBackgroundLocationPlugin: CAPPlugin, CLLocationManagerDele
         }
         
         let formatter = DateComponentsFormatter()
-        
-        let abc = formatter.string(from: _time, to: self.lastUpdateTime!);
+        let diff = formatter.string(from: self.lastUpdateTime!, to: _time);
         self.lastUpdateTime = Date();
-        return false;
+        
+        let ch = Float(diff ?? "0")! > Float(self.interval);
+        return Bool(ch);
     }
     
     public func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
@@ -86,7 +88,10 @@ public class CapacitorBackgroundLocationPlugin: CAPPlugin, CLLocationManagerDele
         let _speed = self.locationManager?.location?.speed ?? 0.0;
         let _locTime = self.locationManager?.location?.timestamp ?? Date();
         
-        // self.checkIsValidUpdate(_time: _locTime);
+        if !self.checkIsValidUpdate(_time: _locTime) {
+            print("OPSSS INVALIDATE INTERVAL")
+            return;
+        }
         
         let outDateFormatter: DateFormatter = {
             let df = DateFormatter();
@@ -108,7 +113,6 @@ public class CapacitorBackgroundLocationPlugin: CAPPlugin, CLLocationManagerDele
             "time": _time,
             "lastUpdate": _time
         ];
-        
         
         self.notifyListeners(self.EVENT_NAME, data: _data);
         
@@ -189,12 +193,11 @@ public class CapacitorBackgroundLocationPlugin: CAPPlugin, CLLocationManagerDele
                 return;
             }
             
+            let interval = call.getInt("interval", 15000);
+            self.interval = Float(interval) / Float(1000);
+            
             self.locationManager?.stopUpdatingLocation();
-            
-            self.locationManager?.distanceFilter = 5;
-            
             self.locationManager?.requestLocation();
-            
             self.locationManager?.startUpdatingLocation();
             
             self.showNotification(title: self.title, description: self.desc);
