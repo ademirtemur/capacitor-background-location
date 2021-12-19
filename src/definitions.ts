@@ -23,6 +23,7 @@ export interface ILocation {
   accuracy?: number;
   altitude?: number;
   bearing?: number;
+  angle?: number;
   speed?: number;
   time?: number | string;
 }

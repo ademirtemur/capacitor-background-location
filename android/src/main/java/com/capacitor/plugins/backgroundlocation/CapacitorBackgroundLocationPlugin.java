@@ -3,10 +3,12 @@ package com.capacitor.plugins.backgroundlocation;
 import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
+import android.location.LocationManager;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.core.content.ContextCompat;
+import androidx.core.location.LocationManagerCompat;
 
 import com.getcapacitor.JSObject;
 import com.getcapacitor.Plugin;
@@ -110,18 +112,37 @@ public class CapacitorBackgroundLocationPlugin extends Plugin {
                 return;
             }
 
+            LocationManager lm = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
+            if (!LocationManagerCompat.isLocationEnabled(lm)) {
+                this.notifyListeners("ERROR", new JSObject().put("error", "GPS_IS_NOT_ENABLE"));
+                call.reject("GPS_IS_NOT_ENABLE");
+                return;
+            }
+
             stopService();
 
             Intent serviceIntent = new Intent(context, BackgroundLocationService.class);
             ContextCompat.startForegroundService(context, serviceIntent);
 
-            BackgroundLocationService.startProcess(
-                    context,
-                    interval,
-                    locationPriority
-            );
+            Runnable r = new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        BackgroundLocationService.startProcess(
+                                context,
+                                interval,
+                                locationPriority
+                        );
 
-            call.resolve();
+                        call.resolve();
+                    } catch (Exception ex) {
+                        stopService();
+                        call.reject(SMTH_WENT_WRONG);
+                    }
+                }
+            };
+
+            r.run();
         } catch (Exception ex) {
             stopService();
             call.reject(SMTH_WENT_WRONG);

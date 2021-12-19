@@ -147,6 +147,7 @@ removeAllListeners() => Promise<void>
 | **`accuracy`**  | <code>number</code>           |
 | **`altitude`**  | <code>number</code>           |
 | **`bearing`**   | <code>number</code>           |
+| **`angle`**     | <code>number</code>           |
 | **`speed`**     | <code>number</code>           |
 | **`time`**      | <code>string \| number</code> |
 

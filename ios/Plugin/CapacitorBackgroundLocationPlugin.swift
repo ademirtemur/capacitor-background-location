@@ -15,6 +15,8 @@ public class CapacitorBackgroundLocationPlugin: CAPPlugin, CLLocationManagerDele
     private var headers: JSObject = [:];
     private var body: JSObject = [:];
     
+    private var lastUpdateTime: Date? = nil;
+    
     private var locationManager: CLLocationManager? = nil;
     
     @objc public override func load() {
@@ -54,6 +56,19 @@ public class CapacitorBackgroundLocationPlugin: CAPPlugin, CLLocationManagerDele
         self.notificationCenter.add(request, withCompletionHandler: nil);
     }
     
+    func checkIsValidUpdate(_time: Date) -> Bool {
+        if self.lastUpdateTime == nil {
+            self.lastUpdateTime = Date();
+            return true;
+        }
+        
+        let formatter = DateComponentsFormatter()
+        
+        let abc = formatter.string(from: _time, to: self.lastUpdateTime!);
+        self.lastUpdateTime = Date();
+        return false;
+    }
+    
     public func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
         print("locationManagerDidChangeAuthorization----->")
     }
@@ -63,30 +78,33 @@ public class CapacitorBackgroundLocationPlugin: CAPPlugin, CLLocationManagerDele
     }
     
     public func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
-        let _latitude = self.locationManager?.location?.coordinate.latitude;
-        let _longitude = self.locationManager?.location?.coordinate.longitude;
-        let _accuracy = self.locationManager?.location?.horizontalAccuracy;
-        let _altitude = self.locationManager?.location?.altitude;
-        let _bearing  = self.locationManager?.location?.course;
-        let _speed = self.locationManager?.location?.speed;
-        let _locTime = self.locationManager?.location?.timestamp;
+        let _latitude = self.locationManager?.location?.coordinate.latitude ?? 0.0;
+        let _longitude = self.locationManager?.location?.coordinate.longitude ?? 0.0;
+        let _accuracy = self.locationManager?.location?.horizontalAccuracy ?? 0.0;
+        let _altitude = self.locationManager?.location?.altitude ?? 0.0;
+        let _bearing  = self.locationManager?.location?.course ?? 0.0;
+        let _speed = self.locationManager?.location?.speed ?? 0.0;
+        let _locTime = self.locationManager?.location?.timestamp ?? Date();
+        
+        // self.checkIsValidUpdate(_time: _locTime);
         
         let outDateFormatter: DateFormatter = {
             let df = DateFormatter();
             df.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
-            df.locale = Locale(identifier: "en_US_POSIX");
+            df.timeZone = TimeZone(secondsFromGMT: 0);
             return df;
         }()
         
-        let _time = outDateFormatter.string(from: _locTime!);
+        let _time = outDateFormatter.string(from: _locTime);
         
         let _data: [String : Any] = [
-            "latitude": _latitude,
-            "longitude": _longitude,
-            "accuracy": _accuracy,
-            "altitude": _altitude,
-            "bearing": _bearing,
-            "speed": _speed,
+            "latitude": Float(_latitude),
+            "longitude": Float(_longitude),
+            "accuracy": Float(_accuracy),
+            "altitude": Float(_altitude),
+            "bearing": Float(_bearing),
+            "angle": Float(_bearing),
+            "speed": Float(_speed),
             "time": _time,
             "lastUpdate": _time
         ];
@@ -94,7 +112,9 @@ public class CapacitorBackgroundLocationPlugin: CAPPlugin, CLLocationManagerDele
         
         self.notifyListeners(self.EVENT_NAME, data: _data);
         
-        self.sendData(_data: _data);
+        DispatchQueue.global().async {
+            self.sendData(_data: _data);
+        }
     }
     
     @objc func sendData(_data: [String : Any] ) -> Void {
@@ -164,6 +184,15 @@ public class CapacitorBackgroundLocationPlugin: CAPPlugin, CLLocationManagerDele
     
     @objc func start(_ call: CAPPluginCall) {
         do{
+            if CLLocationManager.locationServicesEnabled() == false {
+                call.reject("GPS_IS_NOT_ENABLE");
+                return;
+            }
+            
+            self.locationManager?.stopUpdatingLocation();
+            
+            self.locationManager?.distanceFilter = 5;
+            
             self.locationManager?.requestLocation();
             
             self.locationManager?.startUpdatingLocation();

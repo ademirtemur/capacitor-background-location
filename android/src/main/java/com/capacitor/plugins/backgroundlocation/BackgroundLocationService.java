@@ -13,7 +13,7 @@ import android.location.Location;
 import android.os.Build;
 import android.os.IBinder;
 import android.os.Looper;
-import android.util.Log;
+// import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
@@ -35,7 +35,6 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Iterator;
-import java.util.Random;
 import java.util.TimeZone;
 
 import com.loopj.android.http.*;
@@ -54,6 +53,8 @@ public class BackgroundLocationService extends Service {
 
     private static FusedLocationProviderClient fusedLocationClient;
     private static LocationCallback locationCallback;
+
+    private static AsyncHttpClient client = new AsyncHttpClient();
 
     private static OnCustomErrorListener onCustomErrorListener;
     private static OnCustomEventListener onCustomChangeEventListener;
@@ -94,6 +95,9 @@ public class BackgroundLocationService extends Service {
         super.onCreate();
         isServiceRunning = true;
         this.createNotificationChannel();
+
+        BackgroundLocationService.client.addHeader("Content-Type", "application/json");
+        BackgroundLocationService.client.addHeader("Accept", "application/json");
     }
 
     private void createNotificationChannel() {
@@ -110,13 +114,14 @@ public class BackgroundLocationService extends Service {
     }
 
 
-    private static void doLocationUpdateProccess(Context context, Location location) {
-        double _lat = location.getLatitude();
-        double _lng = location.getLongitude();
-        float _accuracy = location.getAccuracy();
-        double _altitude = location.getAltitude();
-        float _bearing = location.getBearing();
-        float _speed = location.getSpeed();
+    private static void doLocationUpdateProcess(Context context, Location location) {
+        double _lat = (float) location.getLatitude();
+        double _lng = (float) location.getLongitude();
+        float _accuracy = (float) location.getAccuracy();
+        float _altitude = (float) location.getAltitude();
+        float _bearing = (float) location.getBearing();
+        float _angle = (float) location.getBearing();
+        float _speed = (float) location.getSpeed();
 
         TimeZone tz = TimeZone.getTimeZone("UTC");
         DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm'Z'"); // Quoted "Z" to indicate UTC, no timezone offset
@@ -129,6 +134,7 @@ public class BackgroundLocationService extends Service {
         locationEventPayload.put("accuracy", _accuracy);
         locationEventPayload.put("altitude", _altitude);
         locationEventPayload.put("bearing", _bearing);
+        locationEventPayload.put("angle", _angle);
         locationEventPayload.put("speed", _speed);
         locationEventPayload.put("time", nowAsISO);
         locationEventPayload.put("lastUpdate", nowAsISO);
@@ -140,14 +146,10 @@ public class BackgroundLocationService extends Service {
 
         if (url != null && url != "") {
             try {
-                AsyncHttpClient client = new AsyncHttpClient();
-
-                client.addHeader("Content-Type", "application/json");
-                client.addHeader("Accept", "application/json");
                 Iterator<String> iterator = BackgroundLocationService.headers.keys();
                 while (iterator.hasNext()) {
                     String key = iterator.next();
-                    client.addHeader(key, BackgroundLocationService.headers.getString(key));
+                    BackgroundLocationService.client.addHeader(key, BackgroundLocationService.headers.getString(key));
                 }
 
                 JSObject _body = new JSObject();
@@ -159,7 +161,7 @@ public class BackgroundLocationService extends Service {
 
                 }
                 StringEntity entity = new StringEntity(_body.toString());
-                client.post(context, url, entity, "application/json", new AsyncHttpResponseHandler() {
+                BackgroundLocationService.client.post(context, url, entity, "application/json", new AsyncHttpResponseHandler() {
                     @Override
                     public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
                         // Log.d("snow", responseBody.toString());
@@ -262,8 +264,8 @@ public class BackgroundLocationService extends Service {
             Integer locationPriority
     ) throws Exception {
         LocationRequest locationRequest = LocationRequest.create();
-        locationRequest.setInterval(10000);
-        locationRequest.setFastestInterval(5000);
+        locationRequest.setInterval(interval);
+        locationRequest.setFastestInterval(interval);
         locationRequest.setPriority(locationPriority);
 
         BackgroundLocationService.locationCallback = new LocationCallback() {
@@ -275,10 +277,15 @@ public class BackgroundLocationService extends Service {
 
                 Location location = locationResult.getLastLocation();
 
-                BackgroundLocationService.doLocationUpdateProccess(context, location);
+                Runnable r = new Runnable() {
+                    @Override
+                    public void run() {
+                        BackgroundLocationService.doLocationUpdateProcess(context, location);
+                    }
+                };
+                r.run();
             }
         };
-
 
         Boolean isGrantedAFL = (
                 ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
@@ -295,7 +302,7 @@ public class BackgroundLocationService extends Service {
             task.addOnSuccessListener(new OnSuccessListener<Location>() {
                 @Override
                 public void onSuccess(Location location) {
-                    BackgroundLocationService.doLocationUpdateProccess(context, location);
+                    BackgroundLocationService.doLocationUpdateProcess(context, location);
                 }
             });
 
