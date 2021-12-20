@@ -68,7 +68,7 @@ public class CapacitorBackgroundLocationPlugin: CAPPlugin, CLLocationManagerDele
         let ch = Float(diff ?? "0")! > Float(self.interval);
         
         if Bool(ch){
-            self.lastUpdateTime = Date();
+            self.lastUpdateTime = _time;
         }
         return Bool(ch);
     }
@@ -88,10 +88,10 @@ public class CapacitorBackgroundLocationPlugin: CAPPlugin, CLLocationManagerDele
         let _altitude = self.locationManager?.location?.altitude ?? 0.0;
         let _bearing  = self.locationManager?.location?.course ?? 0.0;
         let _speed = self.locationManager?.location?.speed ?? 0.0;
-        let _locTime = self.locationManager?.location?.timestamp ?? Date();
+        let _locApiTime = self.locationManager?.location?.timestamp ?? Date();
         
-        if !self.checkIsValidUpdate(_time: _locTime) {
-            print("OPSSS INVALIDATE INTERVAL")
+        if !self.checkIsValidUpdate(_time: Date()) {
+            print("OPSSS INVALIDATE INTERVAL");
             return;
         }
         
@@ -102,7 +102,7 @@ public class CapacitorBackgroundLocationPlugin: CAPPlugin, CLLocationManagerDele
             return df;
         }()
         
-        let _time = outDateFormatter.string(from: _locTime);
+        let _time = outDateFormatter.string(from: _locApiTime);
         
         let _data: [String : Any] = [
             "latitude": Float(_latitude),
