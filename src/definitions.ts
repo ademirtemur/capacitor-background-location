@@ -25,7 +25,7 @@ export interface ILocation {
   bearing?: number;
   angle?: number;
   speed?: number;
-  time?: number | string;
+  time?: string;
 }
 
 export interface IConfig {
@@ -36,8 +36,13 @@ export interface IConfig {
   body?: { [key: string]: any };
 }
 
+interface IGpsStatus {
+  status: boolean;
+}
+
 export interface CapacitorBackgroundLocationPlugin {
   setConfig(config: IConfig): Promise<{}>;
+  getGpsStatus(): Promise<IGpsStatus>;
   start(options: IStartOptions): Promise<{}>;
   stop(): Promise<{}>;
   addListener(eventName: EVENTS.Change, callback: (location: ILocation) => void): Promise<PluginListenerHandle> & PluginListenerHandle;

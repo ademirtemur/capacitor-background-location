@@ -7,7 +7,6 @@ import android.location.LocationManager;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
-import androidx.core.content.ContextCompat;
 import androidx.core.location.LocationManagerCompat;
 
 import com.getcapacitor.JSObject;
@@ -97,6 +96,14 @@ public class CapacitorBackgroundLocationPlugin extends Plugin {
     }
 
     @PluginMethod
+    public void getGpsStatus(PluginCall call) {
+        LocationManager lm = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
+        Boolean status = LocationManagerCompat.isLocationEnabled(lm);
+        JSObject response = new JSObject().put("status", status);
+        call.resolve(response);
+    }
+
+    @PluginMethod
     public void start(PluginCall call) {
         try {
             Integer interval = call.getInt("interval");
@@ -107,12 +114,12 @@ public class CapacitorBackgroundLocationPlugin extends Plugin {
                 return;
             }
 
-            LocationManager lm = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
-            if (!LocationManagerCompat.isLocationEnabled(lm)) {
-                this.notifyListeners("ERROR", new JSObject().put("error", "GPS_IS_NOT_ENABLE"));
-                call.reject("GPS_IS_NOT_ENABLE");
-                return;
-            }
+            // LocationManager lm = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
+            // if (!LocationManagerCompat.isLocationEnabled(lm)) {
+            //     this.notifyListeners("ERROR", new JSObject().put("error", "GPS_IS_NOT_ENABLE"));
+            //     call.reject("GPS_IS_NOT_ENABLE");
+            //     return;
+            // }
 
             stopService();
 

@@ -186,14 +186,21 @@ public class CapacitorBackgroundLocationPlugin: CAPPlugin, CLLocationManagerDele
         self.urlPath = call.getString("url");
         self.headers = call.getObject("headers", [:]);
         self.body = call.getObject("body", [:]);
+        
+        call.resolve([:])
+    }
+
+    @objc func getGpsStatus(_ call: CAPPluginCall) {
+        let gpsStatus = CLLocationManager.locationServicesEnabled();
+        call.resolve(["status": gpsStatus])
     }
     
     @objc func start(_ call: CAPPluginCall) {
         do{
-            if CLLocationManager.locationServicesEnabled() == false {
-                call.reject("GPS_IS_NOT_ENABLE");
-                return;
-            }
+            // if CLLocationManager.locationServicesEnabled() == false {
+            //     call.reject("GPS_IS_NOT_ENABLE");
+            //     return;
+            // }
             
             let interval = call.getInt("interval", 15000);
             self.interval = Float(interval) / Float(1000);
@@ -201,6 +208,8 @@ public class CapacitorBackgroundLocationPlugin: CAPPlugin, CLLocationManagerDele
             self.locationManager?.stopUpdatingLocation();
             self.locationManager?.requestLocation();
             self.locationManager?.startUpdatingLocation();
+            self.locationManager?.startMonitoringSignificantLocationChanges();
+            self.locationManager?.allowsBackgroundLocationUpdates = true
             
             self.showNotification(title: self.title, description: self.desc);
             

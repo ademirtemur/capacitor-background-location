@@ -14,6 +14,7 @@ npx cap sync
 <docgen-index>
 
 * [`setConfig(...)`](#setconfig)
+* [`getGpsStatus()`](#getgpsstatus)
 * [`start(...)`](#start)
 * [`stop()`](#stop)
 * [`addListener(...)`](#addlistener)
@@ -38,6 +39,17 @@ setConfig(config: IConfig) => Promise<{}>
 | **`config`** | <code><a href="#iconfig">IConfig</a></code> |
 
 **Returns:** <code>Promise&lt;{}&gt;</code>
+
+--------------------
+
+
+### getGpsStatus()
+
+```typescript
+getGpsStatus() => Promise<IGpsStatus>
+```
+
+**Returns:** <code>Promise&lt;<a href="#igpsstatus">IGpsStatus</a>&gt;</code>
 
 --------------------
 
@@ -123,6 +135,13 @@ removeAllListeners() => Promise<void>
 | **`body`**        | <code>{ [key: string]: any; }</code>    |
 
 
+#### IGpsStatus
+
+| Prop         | Type                 |
+| ------------ | -------------------- |
+| **`status`** | <code>boolean</code> |
+
+
 #### IStartOptions
 
 | Prop                   | Type                                                                            |
@@ -140,16 +159,16 @@ removeAllListeners() => Promise<void>
 
 #### ILocation
 
-| Prop            | Type                          |
-| --------------- | ----------------------------- |
-| **`latitude`**  | <code>number</code>           |
-| **`longitude`** | <code>number</code>           |
-| **`accuracy`**  | <code>number</code>           |
-| **`altitude`**  | <code>number</code>           |
-| **`bearing`**   | <code>number</code>           |
-| **`angle`**     | <code>number</code>           |
-| **`speed`**     | <code>number</code>           |
-| **`time`**      | <code>string \| number</code> |
+| Prop            | Type                |
+| --------------- | ------------------- |
+| **`latitude`**  | <code>number</code> |
+| **`longitude`** | <code>number</code> |
+| **`accuracy`**  | <code>number</code> |
+| **`altitude`**  | <code>number</code> |
+| **`bearing`**   | <code>number</code> |
+| **`angle`**     | <code>number</code> |
+| **`speed`**     | <code>number</code> |
+| **`time`**      | <code>string</code> |
 
 
 ### Enums

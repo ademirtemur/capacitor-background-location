@@ -113,8 +113,11 @@ public class BackgroundLocationService extends Service {
         }
     }
 
-
     private static void doLocationUpdateProcess(Context context, Location location) {
+        if (location == null) {
+            return;
+        }
+
         double _lat = (float) location.getLatitude();
         double _lng = (float) location.getLongitude();
         float _accuracy = (float) location.getAccuracy();
@@ -262,7 +265,7 @@ public class BackgroundLocationService extends Service {
     ) throws Exception {
         LocationRequest locationRequest = LocationRequest.create();
         locationRequest.setInterval(interval);
-        locationRequest.setFastestInterval(interval);
+        locationRequest.setFastestInterval(9000);
         locationRequest.setPriority(locationPriority);
 
         BackgroundLocationService.locationCallback = new LocationCallback() {
@@ -274,13 +277,7 @@ public class BackgroundLocationService extends Service {
 
                 Location location = locationResult.getLastLocation();
 
-                Runnable r = new Runnable() {
-                    @Override
-                    public void run() {
-                        BackgroundLocationService.doLocationUpdateProcess(context, location);
-                    }
-                };
-                r.run();
+                BackgroundLocationService.doLocationUpdateProcess(context, location);
             }
         };
 
