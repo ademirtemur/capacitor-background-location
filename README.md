@@ -190,15 +190,6 @@ ANDROID
 
 And add `xmlns:tools="http://schemas.android.com/tools"` to AndroidManifest.xml
 
-And add to android/app/build.gradle
-```bash
-     android {
-          configurations.all {
-               resolutionStrategy { force 'androidx.work:work-runtime:2.6.0' }
-          }
-     }
-```
-
 <hr/>
 ###
 IOS

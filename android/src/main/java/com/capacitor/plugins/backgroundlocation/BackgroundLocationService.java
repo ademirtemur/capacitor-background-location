@@ -240,9 +240,6 @@ public class BackgroundLocationService extends Service {
         isServiceRunning = false;
         stopForeground(true);
 
-        Intent broadcastIntent = new Intent(getApplicationContext(), BackgroundLocationReceiver.class);
-        sendBroadcast(broadcastIntent);
-
         super.onDestroy();
     }
 

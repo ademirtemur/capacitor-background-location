@@ -122,7 +122,7 @@ public class CapacitorBackgroundLocationPlugin extends Plugin {
             }
 
             Intent serviceIntent = new Intent(context, BackgroundLocationService.class);
-            context.startService(context, serviceIntent);
+            context.startService(serviceIntent);
 
             BackgroundLocationService.startProcess(
                     context,
