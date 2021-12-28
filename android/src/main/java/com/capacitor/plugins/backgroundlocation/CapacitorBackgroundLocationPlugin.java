@@ -122,27 +122,15 @@ public class CapacitorBackgroundLocationPlugin extends Plugin {
             stopService();
 
             Intent serviceIntent = new Intent(context, BackgroundLocationService.class);
-            ContextCompat.startForegroundService(context, serviceIntent);
+            context.startForegroundService(context, serviceIntent);
 
-            Runnable r = new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        BackgroundLocationService.startProcess(
-                                context,
-                                interval,
-                                locationPriority
-                        );
+            BackgroundLocationService.startProcess(
+                    context,
+                    interval,
+                    locationPriority
+            );
 
-                        call.resolve();
-                    } catch (Exception ex) {
-                        stopService();
-                        call.reject(SMTH_WENT_WRONG);
-                    }
-                }
-            };
-
-            r.run();
+            call.resolve();
         } catch (Exception ex) {
             stopService();
             call.reject(SMTH_WENT_WRONG);

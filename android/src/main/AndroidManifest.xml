@@ -7,12 +7,6 @@
         android:resource="@color/colorAccent" />
 
     <application>
-        <receiver
-            android:name="com.capacitor.plugins.backgroundlocation.BackgroundLocationReceiver"
-            android:enabled="true"
-            android:exported="false"
-            tools:ignore="WrongManifestParent" />
-
         <service
             android:name="com.capacitor.plugins.backgroundlocation.BackgroundLocationService"
             android:enabled="true"

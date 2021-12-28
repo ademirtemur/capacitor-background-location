@@ -205,7 +205,7 @@ public class BackgroundLocationService extends Service {
         try {
             String name = getAppString(
                     "capacitor_background_geolocation_notification_icon",
-                    "mipmap/cap_bg_loc"
+                    "mipmap/ic_launcher"
             );
             String[] parts = name.split("/");
             icon = getAppResourceIdentifier(parts[1], parts[0]);
