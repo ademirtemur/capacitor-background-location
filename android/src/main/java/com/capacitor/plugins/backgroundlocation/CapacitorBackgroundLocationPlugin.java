@@ -99,11 +99,6 @@ public class CapacitorBackgroundLocationPlugin extends Plugin {
     @PluginMethod
     public void start(PluginCall call) {
         try {
-            if (BackgroundLocationService.isServiceRunning) {
-                call.reject("SERVICE_IS_RUNNING_ALREADY");
-                return;
-            }
-
             Integer interval = call.getInt("interval");
             Integer locationPriority = call.getInt("locationPriority");
 
@@ -121,8 +116,13 @@ public class CapacitorBackgroundLocationPlugin extends Plugin {
 
             stopService();
 
+            if (BackgroundLocationService.isServiceRunning) {
+                call.reject("SERVICE_IS_RUNNING_ALREADY");
+                return;
+            }
+
             Intent serviceIntent = new Intent(context, BackgroundLocationService.class);
-            context.startForegroundService(context, serviceIntent);
+            context.startService(context, serviceIntent);
 
             BackgroundLocationService.startProcess(
                     context,
